@@ -12,6 +12,7 @@ import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 import gadgets.*;
+import gadgets.Geometry;
 import map.*;
 import system.*;
 import system.Data;
@@ -146,8 +147,9 @@ class RelationsTable extends FlxBasic
 
 	private function initIndicators(x:Float, y:Float, size:Float, indicatorGroup:FlxGroup)
 	{
-		grid = new Grid(x, y, size, size, nations.length + 1, nations.length + 1);
-		anchor.add(grid.anchor);
+		grid = new Grid().origin(x, y).fromFinite(size, size, nations.length + 1, nations.length + 1).centerAlign();
+		// new Grid(x, y, size, size, nations.length + 1, nations.length + 1);
+		// anchor.add(grid.anchor);
 
 		relationIndicators = new Map<Nation, Map<Nation, FlxSprite>>();
 		compatibilityIndicators = new Map<Nation, Map<Nation, FlxSprite>>();
@@ -167,12 +169,15 @@ class RelationsTable extends FlxBasic
 				var nation2 = nations[j];
 				var relationIndicator = new FlxSprite();
 				relationIndicator.makeGraphic(indicatorSize, indicatorSize, FlxColor.WHITE, true);
-				grid.addAnchor(new Anchor(0, 0).attachParent(relationIndicator), i + 1, j + 1);
+				var pos = grid.getXY(i + 1, j + 1);
+				var otherAnchor = new Anchor(pos.x, pos.y).attachParent(relationIndicator);
+				anchor.add(otherAnchor);
 				indicatorGroup.add(relationIndicator);
 
 				var compatibilityIndicator = new FlxSprite();
 				compatibilityIndicator.makeGraphic(indicatorSize, indicatorSize, FlxColor.WHITE, true);
-				grid.addAnchor(new Anchor(0, 0).attachParent(compatibilityIndicator), i + 1, j + 1);
+				otherAnchor = new Anchor(pos.x, pos.y).attachParent(compatibilityIndicator);
+				anchor.add(otherAnchor);
 				indicatorGroup.add(compatibilityIndicator);
 
 				compatibilityIndicator.scale.x *= 0.5;
@@ -181,19 +186,9 @@ class RelationsTable extends FlxBasic
 				relationIndicators[nation1][nation2] = relationIndicator;
 				compatibilityIndicators[nation1][nation2] = compatibilityIndicator;
 
-				// trace(nation1);
-				// trace(nation2);
-				// trace(compatibilityMatrix);
-				// for (key1 in compatibilityMatrix.keys())
-				// {
-				// 	trace("Nation:\n");
-				// 	trace(key1.num);
-				// 	for (key2 in compatibilityMatrix[key1].keys())
-				// 	{
-				// 		trace(key2.num);
-				// 	}
-				// }
 				compatibilityIndicator.color = FlxColor.fromHSL((100 * compatibility(nation1, nation2) + 100) * 0.6, 0.82, 0.56);
+
+				pos.put();
 			}
 		}
 
@@ -202,14 +197,20 @@ class RelationsTable extends FlxBasic
 			var rowText = new FlxText();
 			rowText.size = Math.round(indicatorSize * 0.5);
 			rowText.text = Std.string(i + 1);
-			grid.addAnchor(new Anchor().attachParent(rowText), i + 1, 0);
+			var pos = grid.getXY(i + 1, 0);
+			var otherAnchor = new Anchor(pos.x, pos.y).attachParent(rowText);
+			anchor.add(otherAnchor);
 			indicatorGroup.add(rowText);
 
 			var colText = new FlxText();
 			colText.size = Math.round(indicatorSize * 0.5);
 			colText.text = Std.string(i + 1);
-			grid.addAnchor(new Anchor().attachParent(colText), 0, i + 1);
+			pos = grid.getXY(0, i + 1);
+			otherAnchor = new Anchor(pos.x, pos.y).attachParent(colText);
+			anchor.add(otherAnchor);
 			indicatorGroup.add(colText);
+
+			pos.put();
 		}
 
 		updateIndicators();

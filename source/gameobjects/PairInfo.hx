@@ -14,29 +14,45 @@ import gameobjects.RelationsDiagram;
 import system.*;
 import system.Reg;
 
+using Useful;
+
 class PairInfo
 {
 	public var sprite:FlxSprite;
+	public var text:FlxText;
 
 	public function new(x:Float, y:Float, size:Float, group:FlxGroup)
 	{
 		sprite = new FlxSprite(x, y);
-		sprite.makeGraphic(Std.int(size), Std.int(size), FlxColor.RED, true);
+		sprite.makeGraphic(Std.int(size), Std.int(size), FlxColor.GRAY, true);
 		group.add(sprite);
+
+		text = new FlxText();
+		text.fieldWidth = Std.int(size);
+		text.size = 24;
+		text.alignment = CENTER;
+		text.color = FlxColor.WHITE;
+		Useful.centerAt(text, x + size / 2, y + size / 2);
+		group.add(text);
 	}
 
 	public function hide()
 	{
 		sprite.visible = false;
+		text.visible = false;
 	}
 
 	public function load(circle1:Null<NationCircle>, circle2:Null<NationCircle>)
 	{
-		sprite.visible = true;
+		var nation1 = circle1.nation;
+		var nation2 = circle2.nation;
+		var distance = Math.sqrt(nation1.loc.zipWith(nation2.loc, (a, b) -> (a - b) * (a - b)).sum());
+		text.text = Std.string(FlxMath.roundDecimal(distance, 3));
 	}
 
 	public function show()
 	{
 		sprite.visible = true;
+		text.visible = true;
 	}
 }

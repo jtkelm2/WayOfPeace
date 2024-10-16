@@ -48,7 +48,7 @@ class Line
 	}
 }
 
-class GridNew
+class Grid
 {
 	public var x:Float;
 	public var y:Float;
@@ -67,7 +67,6 @@ class GridNew
 		dy = 0;
 		offsetX = 0;
 		offsetY = 0;
-		center = false;
 	}
 
 	public function dxdy(dx:Float, dy:Float)
@@ -79,9 +78,9 @@ class GridNew
 
 	public function centerAlign(bool:Bool = true)
 	{
-		center = bool;
 		offsetX = bool ? 0.5 * dx : 0;
 		offsetY = bool ? 0.5 * dy : 0;
+		return this;
 	}
 
 	public function origin(x:Float, y:Float)
@@ -95,8 +94,9 @@ class GridNew
 	{
 		this.rows = rows;
 		this.cols = cols;
-		dx = width / (cols - 1);
-		dy = height / (rows - 1);
+		dx = width / cols;
+		dy = height / rows;
+		return this;
 	}
 
 	/* Get center point of the rowth row and colth col */

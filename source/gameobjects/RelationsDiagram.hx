@@ -331,33 +331,3 @@ class GraphLayout
 		return Math.min(Math.max(value, min), max);
 	}
 }
-
-// class NationLiason
-// {
-// 	public var start:NationCircle;
-// 	public var end:NationCircle;
-// 	private var sprites:Array<FlxSprite>;
-// 	public function new(start:NationCircle, end:NationCircle, radius:Float, group:FlxGroup, segments:Int = 7)
-// 	{
-// 		this.start = start;
-// 		this.end = end;
-// 		sprites = [];
-// 		var line = new AnchorLine(start.anchor, end.anchor, segments);
-// 		for (i in 1...segments)
-// 		{
-// 			var dot = new FlxSprite();
-// 			dot.makeGraphic(Std.int(radius * 2), Std.int(radius * 2), FlxColor.GREEN, true);
-// 			line.anchors[i].attachParent(dot);
-// 			sprites.push(dot);
-// 			group.add(dot);
-// 		}
-// 		toggleVisibility(false);
-// 	}
-// 	public function toggleVisibility(bool:Bool)
-// 	{
-// 		for (sprite in sprites)
-// 		{
-// 			sprite.visible = bool;
-// 		}
-// 	}
-// }
