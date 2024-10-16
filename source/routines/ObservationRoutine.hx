@@ -61,7 +61,7 @@ class ObservationRoutine extends Routine
 			case KeyReleased(Right):
 				FlxG.timeScale = 1;
 			case KeyPressed(Enter):
-				graphic.table.resetRelationMatrix(true);
+				graphic.table.reset(true);
 			case KeyPressed(Shift):
 				graphic.setMode(DRAG);
 			case KeyReleased(Shift):

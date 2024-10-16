@@ -105,3 +105,24 @@ function loadGraphicCropped(graphic:FlxGraphicAsset, x:Int, y:Int, width:Int, he
 	stamp.destroy();
 	return sprite;
 }
+
+function reluMax(t:Float, x1:Float, x2:Float, left:Float = 0, right:Float = 1):Float
+{
+	if (t < x1)
+	{
+		return left;
+	}
+	else if (t > x2)
+	{
+		return right;
+	}
+	else
+	{
+		return (t - x1) * (right - left) / (x2 - x1) + left;
+	}
+}
+
+function distance(p:Array<Float>, q:Array<Float>):Float
+{
+	return Math.sqrt(sum(zipWith(p, q, (a, b) -> (a - b) * (a - b))));
+}

@@ -1,5 +1,6 @@
-package gameobjects;
+package gameobjects.diplographic;
 
+import Useful.reluMax;
 import flixel.FlxBasic;
 import flixel.FlxG;
 import flixel.FlxSprite;
@@ -10,7 +11,8 @@ import flixel.util.FlxColor;
 import flixel.util.FlxSpriteUtil;
 import gadgets.*;
 import gameobjects.*;
-import gameobjects.RelationsDiagram;
+import gameobjects.diplographic.*;
+import gameobjects.diplographic.RelationsDiagram;
 import system.*;
 import system.Reg;
 
@@ -48,6 +50,8 @@ class PairInfo
 		var nation2 = circle2.nation;
 		var distance = Math.sqrt(nation1.loc.zipWith(nation2.loc, (a, b) -> (a - b) * (a - b)).sum());
 		text.text = Std.string(FlxMath.roundDecimal(distance, 3));
+		text.text += " -> ";
+		text.text += Std.string(FlxMath.roundDecimal(reluMax(distance, Reg.C_THRESHOLD_LOWER, Reg.C_THRESHOLD_UPPER, 1, -1), 3));
 	}
 
 	public function show()

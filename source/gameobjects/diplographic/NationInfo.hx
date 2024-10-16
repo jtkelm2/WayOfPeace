@@ -1,4 +1,4 @@
-package gameobjects;
+package gameobjects.diplographic;
 
 import flixel.FlxBasic;
 import flixel.FlxG;
@@ -12,7 +12,8 @@ import flixel.util.FlxSpriteUtil;
 import gadgets.*;
 import gadgets.Geometry;
 import gameobjects.*;
-import gameobjects.RelationsDiagram;
+import gameobjects.diplographic.*;
+import gameobjects.diplographic.RelationsDiagram;
 import system.*;
 import system.Reg;
 

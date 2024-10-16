@@ -20,6 +20,9 @@ class Reg
 	public static var WINDOW_MARGIN:Float;
 	public static var BG_COLOR:FlxColor;
 
+	public static var C_THRESHOLD_LOWER:Float;
+	public static var C_THRESHOLD_UPPER:Float;
+
 	public static var windowGroup:FlxTypedGroup<FlxSprite>;
 	public static var HUDGroup:FlxTypedGroup<FlxSprite>;
 	public static var floatTextGroup:FlxTypedGroup<FlxText>;
@@ -36,6 +39,9 @@ class Reg
 		MAP_HEIGHT = 0.7 * FlxG.height;
 		WINDOW_MARGIN = 16;
 		BG_COLOR = 0xff02030C;
+
+		C_THRESHOLD_LOWER = 0.64;
+		C_THRESHOLD_UPPER = 1.92;
 
 		windowGroup = new FlxTypedGroup<FlxSprite>();
 		HUDGroup = new FlxTypedGroup<FlxSprite>();

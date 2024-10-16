@@ -11,7 +11,8 @@ import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import gadgets.Anchor;
 import gameobjects.*;
-import gameobjects.RelationsTable;
+import gameobjects.diplographic.*;
+import gameobjects.diplographic.RelationsDiagram;
 import system.*;
 import system.System;
 import ui.*;
@@ -34,12 +35,5 @@ class PlayState extends FlxState
 	override public function update(elapsed:Float)
 	{
 		super.update(elapsed);
-
-		if (FlxG.keys.pressed.LEFT) {}
-		if (FlxG.keys.pressed.RIGHT) {}
-
-		if (FlxG.keys.justPressed.SPACE) {}
-
-		if (FlxG.keys.justReleased.SPACE) {}
 	}
 }

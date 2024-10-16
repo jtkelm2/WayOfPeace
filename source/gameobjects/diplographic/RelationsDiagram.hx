@@ -1,4 +1,4 @@
-package gameobjects;
+package gameobjects.diplographic;
 
 import flixel.FlxBasic;
 import flixel.FlxG;
@@ -10,6 +10,7 @@ import flixel.util.FlxColor;
 import flixel.util.FlxSpriteUtil;
 import gadgets.*;
 import gameobjects.*;
+import gameobjects.diplographic.*;
 import system.*;
 import system.Reg;
 
@@ -112,7 +113,7 @@ class RelationsDiagram extends FlxBasic
 
 	public function areFriendly(circle1:NationCircle, circle2:NationCircle):Bool
 	{
-		return table.relationship(circle1.nation, circle2.nation) > 0.8;
+		return table.relations.between(circle1.nation, circle2.nation) > 0.8;
 	}
 
 	public function layout(k:Float = 100)

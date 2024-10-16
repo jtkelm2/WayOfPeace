@@ -10,7 +10,8 @@ import flixel.util.FlxColor;
 import flixel.util.FlxSpriteUtil;
 import gadgets.*;
 import gameobjects.*;
-import gameobjects.RelationsDiagram;
+import gameobjects.diplographic.*;
+import gameobjects.diplographic.RelationsDiagram;
 import system.*;
 import system.Reg;
 
