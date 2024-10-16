@@ -38,7 +38,7 @@ class HUD
 				var matrixWindowSize = FlxG.width - Reg.MAP_WIDTH;
 				var belowTwoHeight = (FlxG.height - matrixWindowSize) / 2;
 				var newsBoxHeight = FlxG.height - Reg.MAP_HEIGHT;
-				addWindow(Reg.MAP_WIDTH, 0, matrixWindowSize, matrixWindowSize, SHADED).setAlpha(0.5);
+				addWindow(Reg.MAP_WIDTH, 0, matrixWindowSize, matrixWindowSize, SHADED);
 				addWindow(Reg.MAP_WIDTH, Reg.MAP_HEIGHT, matrixWindowSize, newsBoxHeight, WIRE);
 				addWindow(0, Reg.MAP_HEIGHT, Reg.MAP_WIDTH, newsBoxHeight, WIRE);
 			case _:

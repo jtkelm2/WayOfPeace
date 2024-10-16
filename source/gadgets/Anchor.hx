@@ -40,12 +40,17 @@ class Anchor
 		// drawMarker();
 	}
 
+	public function center(sprite:FlxSprite)
+	{
+		Useful.centerAt(sprite, x, y);
+	}
+
 	public function attachParent(parent:FlxSprite, center:Bool = true, shouldScaleX:Bool = true, shouldScaleY:Bool = true):Anchor
 	{
 		this.parent = parent;
 		if (center)
 		{
-			Useful.centerAt(parent, x, y);
+			this.center(parent);
 		}
 		this.shouldScaleX = shouldScaleX;
 		this.shouldScaleY = shouldScaleY;
@@ -110,6 +115,18 @@ class Anchor
 			Reg.markerGroup.remove(marker);
 			marker.destroy();
 			marker = null;
+		}
+	}
+
+	public function propagate(callback:FlxSprite->Void)
+	{
+		if (parent != null)
+		{
+			callback(parent);
+		}
+		for (anchor in anchored)
+		{
+			anchor.propagate(callback);
 		}
 	}
 

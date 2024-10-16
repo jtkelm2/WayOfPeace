@@ -52,6 +52,22 @@ class RelationsDiagram extends FlxBasic
 		randomize();
 	}
 
+	public function makeDraggable()
+	{
+		for (circle in circles)
+		{
+			circle.clicker.makeDraggable();
+		}
+	}
+
+	public function clearClickers()
+	{
+		for (circle in circles)
+		{
+			circle.clicker.clear();
+		}
+	}
+
 	private function initCircles()
 	{
 		circles = [];
@@ -144,8 +160,8 @@ class NationCircle extends FlxSprite
 
 	private var radius:Float;
 	private var circleColor:FlxColor;
-	private var clicker:Clicker;
 
+	public var clicker:Clicker<NationCircle>;
 	public var anchor:Anchor;
 
 	public function new(x:Float, y:Float, radius:Float, circleColor:FlxColor, nation:Nation)
@@ -167,7 +183,6 @@ class NationCircle extends FlxSprite
 
 		anchor = new Anchor(x, y).attachParent(this, true, false, false);
 		clicker = new Clicker(this, anchor);
-		clicker.makeDraggable();
 	}
 }
 

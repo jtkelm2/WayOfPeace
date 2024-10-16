@@ -11,14 +11,11 @@ import ui.*;
 
 class ObservationRoutine extends Routine
 {
-	private var relationsTable:RelationsTable;
-	private var tableGroup:FlxGroup;
+	private var graphic:Diplographic;
+	private var group:FlxGroup;
 	private var nations:Array<Nation>;
-	private var diagram:RelationsDiagram;
 
 	private var HUD:HUD;
-
-	private var k:Float;
 
 	public function new()
 	{
@@ -38,18 +35,12 @@ class ObservationRoutine extends Routine
 			}
 		];
 
-		tableGroup = new FlxGroup();
-		FlxG.state.add(tableGroup);
+		group = new FlxGroup();
+		FlxG.state.add(group);
 
-		var relationsTableSize = Std.int(FlxG.width - Reg.MAP_WIDTH - 2 * Reg.WINDOW_MARGIN);
-		relationsTableSize = relationsTableSize - Useful.modulo(relationsTableSize, nations.length + 1);
-		relationsTable = new RelationsTable(Reg.MAP_WIDTH + Reg.WINDOW_MARGIN, Reg.WINDOW_MARGIN, relationsTableSize, nations, tableGroup);
-
-		var diagramGroup = new FlxGroup();
-		FlxG.state.add(diagramGroup);
-		diagram = new RelationsDiagram(0, 0, Reg.MAP_WIDTH, Reg.MAP_HEIGHT, relationsTable, diagramGroup);
-
-		k = 100;
+		var size = Std.int(FlxG.width - Reg.MAP_WIDTH - 2 * Reg.WINDOW_MARGIN);
+		size -= Useful.modulo(size, nations.length + 1);
+		graphic = new Diplographic(Reg.MAP_WIDTH + Reg.WINDOW_MARGIN, Reg.WINDOW_MARGIN, size, nations, group);
 	}
 
 	public function handler(input:InputID)
@@ -57,7 +48,7 @@ class ObservationRoutine extends Routine
 		switch input
 		{
 			case KeyPressed(Spacebar):
-				diagram.layout(k);
+				graphic.diagram.layout();
 			// trace(diagram.circles[0].anchor.x, diagram.circles[0].anchor.y);
 			case KeyPressed(Up):
 				return;
@@ -66,15 +57,17 @@ class ObservationRoutine extends Routine
 			case KeyPressed(Left):
 				return;
 			case KeyPressed(Right):
-				return;
-			case KeyPressed(Enter):
-				relationsTable.resetRelationMatrix(true);
-			case KeyPressed(Shift):
 				FlxG.timeScale = 30;
-			case KeyReleased(Shift):
+			case KeyReleased(Right):
 				FlxG.timeScale = 1;
+			case KeyPressed(Enter):
+				graphic.table.resetRelationMatrix(true);
+			case KeyPressed(Shift):
+				graphic.setMode(DRAG);
+			case KeyReleased(Shift):
+				graphic.setMode(SELECT);
 			case MiddleClick:
-				diagram.randomize();
+				graphic.diagram.randomize();
 			case RightClick:
 				return;
 			case _:

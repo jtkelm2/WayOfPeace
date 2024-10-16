@@ -78,6 +78,16 @@ class RelationsTable extends FlxBasic
 		initIndicators(x, y, size, indicatorGroup);
 	}
 
+	public function show()
+	{
+		anchor.propagate(sprite -> sprite.visible = true);
+	}
+
+	public function hide()
+	{
+		anchor.propagate(sprite -> sprite.visible = false);
+	}
+
 	override public function update(elapsed:Float)
 	{
 		super.update(elapsed);
