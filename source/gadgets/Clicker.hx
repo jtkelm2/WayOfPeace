@@ -6,6 +6,7 @@ import flixel.FlxSprite;
 import flixel.input.mouse.FlxMouseButton.FlxMouseButtonID;
 import flixel.input.mouse.FlxMouseEvent;
 import flixel.math.FlxRect;
+import openfl.events.MouseEvent;
 import system.*;
 
 class Clicker<T:FlxSprite>
@@ -25,11 +26,13 @@ class Clicker<T:FlxSprite>
 			mouseEnabled:Bool = true, pixelPerfect:Bool = true, ?mouseButtons:Array<FlxMouseButtonID>)
 	{
 		FlxMouseEvent.add(sprite, onMouseDown, onMouseUp, onMouseOver, onMouseOut, mouseChildren, mouseEnabled, pixelPerfect, mouseButtons);
+		return this;
 	}
 
 	public function makeDraggable()
 	{
 		add(drag);
+		return this;
 	}
 
 	public function clear()
@@ -41,8 +44,34 @@ class Clicker<T:FlxSprite>
 		FlxMouseEvent.remove(sprite);
 	}
 
+	public function makeButton()
+	{
+		FlxMouseEvent.add(sprite, mouseDown, mouseUp, mouseOver, mouseOut);
+		return this;
+	}
+
 	private function drag(sprite:T)
 	{
 		System.dragger.dragged = anchor;
+	}
+
+	private function mouseDown(sprite:FlxSprite)
+	{
+		sprite.animation.frameIndex = 2;
+	}
+
+	private function mouseUp(sprite:FlxSprite)
+	{
+		sprite.animation.frameIndex = 1;
+	}
+
+	private function mouseOver(sprite:FlxSprite)
+	{
+		sprite.animation.frameIndex = 1;
+	}
+
+	private function mouseOut(sprite:FlxSprite)
+	{
+		sprite.animation.frameIndex = 0;
 	}
 }

@@ -2,6 +2,7 @@ package system;
 
 import flixel.FlxBasic;
 import flixel.FlxSprite;
+import flixel.input.keyboard.FlxKey;
 import flixel.math.FlxPoint;
 import flixel.ui.FlxButton;
 import gameobjects.*;
@@ -21,8 +22,8 @@ enum InputID
 	LeftClick;
 	RightClick;
 	MiddleClick;
-	KeyPressed(key:KeyID);
-	KeyReleased(key:KeyID);
+	KeyPressed(key:FlxKey);
+	KeyReleased(key:FlxKey);
 }
 
 enum Coords
@@ -38,17 +39,6 @@ enum Facing
 	SW;
 	W;
 	NW;
-}
-
-enum KeyID
-{
-	Spacebar;
-	Up;
-	Down;
-	Left;
-	Right;
-	Enter;
-	Shift;
 }
 
 enum ObjectID {}

@@ -21,6 +21,34 @@ enum Mode
 	SELECT;
 }
 
+class Inspector
+{
+	public var anchor:Anchor;
+	public var visibility:Visibility;
+
+	public var table:RelationsTable;
+	public var info:NationInfo;
+	public var pair:PairInfo;
+
+	public function new(x:Float, y:Float, size:Float, nations:Array<Nation>, group:FlxGroup)
+	{
+		anchor = new Anchor(x + size / 2, y + size / 2);
+		visibility = new Visibility();
+
+		info = new NationInfo(x, y, size, group);
+		pair = new PairInfo(x, y, size, group);
+		table = new RelationsTable(x, y, size, nations, group);
+
+		anchor.add(info.anchor);
+		anchor.add(pair.anchor);
+		anchor.add(table.anchor);
+
+		visibility.add(info.visibility);
+		visibility.add(pair.visibility);
+		visibility.add(table.visibility);
+	}
+}
+
 class Diplographic
 {
 	public var x:Float;
@@ -29,9 +57,7 @@ class Diplographic
 	public var nations:Array<Nation>;
 
 	public var diagram:RelationsDiagram;
-	public var table:RelationsTable;
-	public var info:NationInfo;
-	public var pair:PairInfo;
+	public var inspector:Inspector;
 
 	public var circle1:Null<NationCircle>;
 	public var circle2:Null<NationCircle>;
@@ -46,10 +72,8 @@ class Diplographic
 		this.size = size;
 		this.nations = nations;
 
-		info = new NationInfo(x, y, size, group);
-		pair = new PairInfo(x, y, size, group);
-		table = new RelationsTable(x, y, size, nations, group);
-		diagram = new RelationsDiagram(0, 0, Reg.MAP_WIDTH, Reg.MAP_HEIGHT, table, group);
+		inspector = new Inspector(x, y, size, nations, group);
+		diagram = new RelationsDiagram(0, 0, Reg.MAP_WIDTH, Reg.MAP_HEIGHT, inspector.table, group);
 
 		number1 = new FlxText();
 		number1.fieldWidth = 30;
@@ -70,6 +94,37 @@ class Diplographic
 		group.add(number2);
 
 		setMode(SELECT);
+	}
+
+	public function party()
+	{
+		for (nation1 in nations)
+		{
+			for (nation2 in nations)
+			{
+				if (nation1.num > nation2.num)
+				{
+					inspector.table.relations.delta(nation1, nation2, 0.1);
+				}
+			}
+		}
+		inspector.table.refresh();
+	}
+
+	public function lowerRelations()
+	{
+		if (circle1 == null || circle1 == null)
+			return;
+		inspector.table.relations.delta(circle1.nation, circle2.nation, -0.1);
+		inspector.table.refresh();
+	}
+
+	public function raiseRelations()
+	{
+		if (circle1 == null || circle1 == null)
+			return;
+		inspector.table.relations.delta(circle1.nation, circle2.nation, 0.1);
+		inspector.table.refresh();
 	}
 
 	public function setMode(mode:Mode)
@@ -140,26 +195,26 @@ class Diplographic
 	private function refresh()
 	{
 		refreshText();
-		info.hide();
-		pair.hide();
-		table.hide();
+		inspector.info.visibility.hide();
+		inspector.pair.visibility.hide();
+		inspector.table.visibility.hide();
 
 		if (circle2 == null)
 		{
 			if (circle1 == null)
 			{
-				table.show();
+				inspector.table.visibility.show();
 			}
 			else
 			{
-				info.load(circle1);
-				info.show();
+				inspector.info.load(circle1);
+				inspector.info.visibility.show();
 			}
 		}
 		else
 		{
-			pair.load(circle1, circle2);
-			pair.show();
+			inspector.pair.load(circle1, circle2);
+			inspector.pair.visibility.show();
 		}
 	}
 

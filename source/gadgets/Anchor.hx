@@ -4,9 +4,23 @@ import flixel.FlxBasic;
 import flixel.FlxSprite;
 import flixel.math.FlxMath;
 import flixel.math.FlxPoint;
+import flixel.math.FlxRect;
 import gadgets.*;
 import system.*;
 import system.Data;
+
+enum ALIGNMENT
+{
+	TOPLEFT;
+	TOP;
+	TOPRIGHT;
+	CENTERLEFT;
+	CENTER;
+	CENTERRIGHT;
+	BOTTOMLEFT;
+	BOTTOM;
+	BOTTOMRIGHT;
+}
 
 class Anchor
 {
@@ -18,18 +32,24 @@ class Anchor
 
 	public var parent:Null<FlxSprite>;
 
+	// TODO: Right now, shouldScale applies to parent, not to any children anchors. Meanwhile, shouldOffset applies to both parents and children anchors.
 	private var shouldScaleX:Bool;
 	private var shouldScaleY:Bool;
+	private var shouldOffsetX:Bool;
+	private var shouldOffsetY:Bool;
 
 	public var anchored:Array<Anchor>;
 
 	private var marker:Marker;
 
-	public function new(x:Float = 0, y:Float = 0, parent:Null<FlxSprite> = null, shouldScaleX:Bool = true, shouldScaleY:Bool = true)
+	public function new(x:Float = 0, y:Float = 0, parent:Null<FlxSprite> = null, shouldScaleX:Bool = true, shouldScaleY:Bool = true,
+			shouldOffsetX:Bool = true, shouldOffsetY:Bool = true)
 	{
 		this.parent = parent;
 		this.shouldScaleX = shouldScaleX;
 		this.shouldScaleY = shouldScaleY;
+		this.shouldOffsetX = shouldOffsetX;
+		this.shouldOffsetY = shouldOffsetY;
 		this.anchored = [];
 		this.x = x;
 		this.y = y;
@@ -57,6 +77,54 @@ class Anchor
 		return this;
 	}
 
+	public function addSprite(sprite:FlxSprite)
+	{
+		add(new Anchor(x, y).attachParent(sprite));
+	}
+
+	public static function getAlignmentPoint(alignment:ALIGNMENT, rect:FlxRect):FlxPoint
+	{
+		var d:Array<Int> = [
+			TOPLEFT => [-1, -1],
+			TOP => [0, -1],
+			TOPRIGHT => [1, -1],
+			CENTERLEFT => [-1, 0],
+			CENTER => [0, 0],
+			CENTERRIGHT => [1, 0],
+			BOTTOMLEFT => [-1, 1],
+			BOTTOM => [0, 1],
+			BOTTOMRIGHT => [1, 1]
+		][alignment];
+
+		return FlxPoint.get(rect.left + (1 + d[0]) * rect.width / 2, rect.y + (1 + d[1]) * rect.height / 2);
+	}
+
+	public function setAlignment(alignment:ALIGNMENT, propagate:Bool = true)
+	{
+		if (parent != null)
+		{
+			var temp = parent;
+			parent = null;
+
+			var pos = getAlignmentPoint(alignment, temp.getRotatedBounds());
+
+			x = pos.x;
+			y = pos.y;
+
+			pos.put();
+
+			parent = temp;
+		}
+
+		if (propagate)
+		{
+			for (anchor in anchored)
+			{
+				anchor.setAlignment(alignment);
+			}
+		}
+	}
+
 	public function drawMarker(bool:Bool = true)
 	{
 		if (marker == null)
@@ -71,6 +139,7 @@ class Anchor
 		anchored.push(anchor);
 		if (callback != null)
 			callback();
+		return this;
 	}
 
 	public function remove(anchor:Anchor, callback:Callback = null)
@@ -78,6 +147,18 @@ class Anchor
 		anchored.remove(anchor);
 		if (callback != null)
 			callback();
+	}
+
+	public function rectCenter(rect:FlxRect)
+	{
+		x = rect.x + rect.width / 2;
+		y = rect.y + rect.height / 2;
+		return this;
+	}
+
+	public function removeAll()
+	{
+		anchored = [];
 	}
 
 	public function relativize(point:FlxPoint):FlxPoint
@@ -140,15 +221,18 @@ class Anchor
 			return x;
 		}
 
-		var diffX = newX - x;
-		for (anchor in anchored)
+		if (shouldOffsetX)
 		{
-			anchor.x += diffX;
-		}
+			var diffX = newX - x;
+			for (anchor in anchored)
+			{
+				anchor.x += diffX;
+			}
 
-		if (parent != null)
-		{
-			parent.x += diffX;
+			if (parent != null)
+			{
+				parent.x += diffX;
+			}
 		}
 
 		x = newX;
@@ -163,15 +247,18 @@ class Anchor
 			return y;
 		}
 
-		var diffY = newY - y;
-		for (anchor in anchored)
+		if (shouldOffsetY)
 		{
-			anchor.y += diffY;
-		}
+			var diffY = newY - y;
+			for (anchor in anchored)
+			{
+				anchor.y += diffY;
+			}
 
-		if (parent != null)
-		{
-			parent.y += diffY;
+			if (parent != null)
+			{
+				parent.y += diffY;
+			}
 		}
 
 		y = newY;

@@ -23,10 +23,18 @@ class PairInfo
 	public var sprite:FlxSprite;
 	public var text:FlxText;
 
+	public var anchor:Anchor;
+
+	public var visibility:Visibility;
+
 	public function new(x:Float, y:Float, size:Float, group:FlxGroup)
 	{
-		sprite = new FlxSprite(x, y);
+		visibility = new Visibility();
+
+		sprite = new FlxSprite();
 		sprite.makeGraphic(Std.int(size), Std.int(size), FlxColor.GRAY, true);
+		var spriteAnchor = new Anchor().attachParent(sprite);
+		visibility.addSprite(sprite);
 		group.add(sprite);
 
 		text = new FlxText();
@@ -34,14 +42,13 @@ class PairInfo
 		text.size = 24;
 		text.alignment = CENTER;
 		text.color = FlxColor.WHITE;
-		Useful.centerAt(text, x + size / 2, y + size / 2);
+		var textAnchor = new Anchor().attachParent(text);
+		visibility.addSprite(text);
 		group.add(text);
-	}
 
-	public function hide()
-	{
-		sprite.visible = false;
-		text.visible = false;
+		anchor = new Anchor().add(textAnchor).add(spriteAnchor);
+		anchor.x = x + size / 2;
+		anchor.y = y + size / 2;
 	}
 
 	public function load(circle1:Null<NationCircle>, circle2:Null<NationCircle>)
@@ -52,11 +59,5 @@ class PairInfo
 		text.text = Std.string(FlxMath.roundDecimal(distance, 3));
 		text.text += " -> ";
 		text.text += Std.string(FlxMath.roundDecimal(reluMax(distance, Reg.C_THRESHOLD_LOWER, Reg.C_THRESHOLD_UPPER, 1, -1), 3));
-	}
-
-	public function show()
-	{
-		sprite.visible = true;
-		text.visible = true;
 	}
 }

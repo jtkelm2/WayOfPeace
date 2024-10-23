@@ -16,6 +16,7 @@ class ObservationRoutine extends Routine
 	private var nations:Array<Nation>;
 
 	private var HUD:HUD;
+	private var panel:Panel;
 
 	public function new()
 	{
@@ -26,8 +27,6 @@ class ObservationRoutine extends Routine
 	{
 		System.input.setHandler(handler);
 
-		HUD = new HUD(0);
-
 		nations = [
 			for (i in 0...10)
 			{
@@ -35,41 +34,58 @@ class ObservationRoutine extends Routine
 			}
 		];
 
-		group = new FlxGroup();
-		FlxG.state.add(group);
+		HUD = new HUD(0, nations);
+		graphic = HUD.graphic;
 
-		var size = Std.int(FlxG.width - Reg.MAP_WIDTH - 2 * Reg.WINDOW_MARGIN);
-		size -= Useful.modulo(size, nations.length + 1);
-		graphic = new Diplographic(Reg.MAP_WIDTH + Reg.WINDOW_MARGIN, Reg.WINDOW_MARGIN, size, nations, group);
+		// panel = new Panel();
+		// panel.resize(500, 100, 100, 200);
+		// panel.window.loadAsset(WIRE);
+		// panel.addTo(group);
+		// var panels = panel.splitVertical();
+		// panels[0].window.load()
+		// panel.addTo(group);
 	}
 
 	public function handler(input:InputID)
 	{
 		switch input
 		{
-			case KeyPressed(Spacebar):
+			case KeyPressed(SPACE):
 				graphic.diagram.layout();
-			// trace(diagram.circles[0].anchor.x, diagram.circles[0].anchor.y);
-			case KeyPressed(Up):
-				return;
-			case KeyPressed(Down):
-				return;
-			case KeyPressed(Left):
-				return;
-			case KeyPressed(Right):
-				FlxG.timeScale = 30;
-			case KeyReleased(Right):
-				FlxG.timeScale = 1;
-			case KeyPressed(Enter):
-				graphic.table.reset(true);
-			case KeyPressed(Shift):
+			case KeyPressed(UP):
+				graphic.raiseRelations();
+			case KeyPressed(DOWN):
+				graphic.lowerRelations();
+			case KeyPressed(LEFT):
+				graphic.inspector.table.advance(10);
+			case KeyPressed(RIGHT):
+				graphic.inspector.table.advance(1);
+			case KeyPressed(ENTER):
+				graphic.inspector.table.reset(true);
+			case KeyPressed(SHIFT):
 				graphic.setMode(DRAG);
-			case KeyReleased(Shift):
+			case KeyPressed(QUOTE):
+				// graphic.diagram.anchor.angle -= 5;
+				// for (circle in graphic.diagram.circles)
+				// {
+				// 	circle.anchor.angle += 5;
+				// }
+			case KeyPressed(PERIOD):
+				// graphic.diagram.anchor.angle += 5;
+				// for (circle in graphic.diagram.circles)
+				// {
+				// 	circle.anchor.angle -= 5;
+				// }
+			case KeyReleased(SHIFT):
 				graphic.setMode(SELECT);
+			case KeyPressed(C):
+				// graphic.diagram.constrain();
+			case KeyPressed(R):
+				// graphic.diagram.refocus();
 			case MiddleClick:
 				graphic.diagram.randomize();
 			case RightClick:
-				return;
+				graphic.party();
 			case _:
 				return;
 		}

@@ -52,11 +52,8 @@ class RelationsTable extends FlxBasic
 	public var relations:Relations;
 	public var compatibility:Compatibility;
 	public var anchor:Anchor;
+	public var visibility:Visibility;
 
-	// public var relationMatrix:Map<Nation, Map<Nation, Float>>;
-	// private var compatibilityMatrix:Map<Nation, Map<Nation, Float>>;
-	// private var relationIndicators:Map<Nation, Map<Nation, FlxSprite>>;
-	// private var compatibilityIndicators:Map<Nation, Map<Nation, FlxSprite>>;
 	private var grid:Grid;
 	private var distances:Map<Nation, Map<Nation, Float>>;
 
@@ -68,22 +65,13 @@ class RelationsTable extends FlxBasic
 		this.nations = nations;
 
 		grid = new Grid().origin(x, y).fromFinite(size, size, nations.length + 1, nations.length + 1).centerAlign();
-		anchor = new Anchor(x, y);
+		anchor = new Anchor(x + size / 2, y + size / 2);
+		visibility = new Visibility();
 
 		initDistances();
 		compatibility = new Compatibility(nations, distances);
 		relations = new Relations(nations, compatibility, distances);
 		initIndicators(x, y, size, group);
-	}
-
-	public function show()
-	{
-		anchor.propagate(sprite -> sprite.visible = true);
-	}
-
-	public function hide()
-	{
-		anchor.propagate(sprite -> sprite.visible = false);
 	}
 
 	public function reset(resetDistances:Bool = false)
@@ -100,14 +88,25 @@ class RelationsTable extends FlxBasic
 		relations.distances = distances;
 		compatibility.distances = distances;
 		relations.reset();
-		compatibility.refresh();
+		refresh();
 	}
 
-	override public function update(elapsed:Float)
+	public function refresh()
 	{
-		relations.update(elapsed);
+		compatibility.refresh();
 		updateIndicators();
 	}
+
+	public function advance(steps:Int = 1)
+	{
+		for (i in 0...steps)
+		{
+			relations.update(1);
+		}
+		refresh();
+	}
+
+	override public function update(elapsed:Float) {}
 
 	public static function valueColor(value:Float):FlxColor
 	{
@@ -151,16 +150,20 @@ class RelationsTable extends FlxBasic
 				var nation2 = nations[j];
 
 				var relationsIndicator = new FlxSprite();
+				var relationsIndicatorVisibility = new Visibility(relationsIndicator);
 				relationsIndicator.makeGraphic(indicatorSize, indicatorSize, FlxColor.WHITE, true);
 				var pos = grid.getXY(i + 1, j + 1);
 				var otherAnchor = new Anchor(pos.x, pos.y).attachParent(relationsIndicator);
 				anchor.add(otherAnchor);
+				visibility.add(relationsIndicatorVisibility);
 				group.add(relationsIndicator);
 
 				var compatibilityIndicator = new FlxSprite();
+				var compatibilityIndicatorVisibility = new Visibility(compatibilityIndicator);
 				compatibilityIndicator.makeGraphic(indicatorSize, indicatorSize, FlxColor.WHITE, true);
 				otherAnchor = new Anchor(pos.x, pos.y).attachParent(compatibilityIndicator);
 				anchor.add(otherAnchor);
+				visibility.add(compatibilityIndicatorVisibility);
 				group.add(compatibilityIndicator);
 
 				compatibilityIndicator.scale.x *= 0.5;
@@ -176,19 +179,23 @@ class RelationsTable extends FlxBasic
 		for (i in 0...nations.length)
 		{
 			var rowText = new FlxText();
+			var rowTextVisibility = new Visibility(rowText);
 			rowText.size = Math.round(indicatorSize * 0.5);
 			rowText.text = Std.string(i + 1);
 			var pos = grid.getXY(i + 1, 0);
 			var otherAnchor = new Anchor(pos.x, pos.y).attachParent(rowText);
 			anchor.add(otherAnchor);
+			visibility.add(rowTextVisibility);
 			group.add(rowText);
 
 			var colText = new FlxText();
+			var colTextVisibility = new Visibility(colText);
 			colText.size = Math.round(indicatorSize * 0.5);
 			colText.text = Std.string(i + 1);
 			pos = grid.getXY(0, i + 1);
 			otherAnchor = new Anchor(pos.x, pos.y).attachParent(colText);
 			anchor.add(otherAnchor);
+			visibility.add(colTextVisibility);
 			group.add(colText);
 
 			pos.put();
@@ -196,26 +203,6 @@ class RelationsTable extends FlxBasic
 
 		updateIndicators();
 	}
-
-	// private function updateRelationMatrix(elapsed:Float)
-	// {
-	// 	for (i in 0...nations.length)
-	// 	{
-	// 		var nation1 = nations[i];
-	// 		for (j in 0...nations.length)
-	// 		{
-	// 			if (i == j)
-	// 			{
-	// 				continue;
-	// 			}
-	// 			var nation2 = nations[j];
-	// 			var relationDelta = frenemyBias(nation1, nation2) / 2;
-	// 			var compatibilityDelta = compatibility(nation1, nation2);
-	// 			relationMatrix[nation1][nation2] = FlxMath.bound(relationMatrix[nation1][nation2] + elapsed * (0.5 * relationDelta + 0.5 * compatibilityDelta),
-	// 				-1, 1);
-	// 		}
-	// 	}
-	// }
 
 	private function updateIndicators()
 	{
@@ -288,7 +275,27 @@ class Relations
 
 	public function between(nation1:Nation, nation2:Nation):Float
 	{
+		if (nation1 == nation2)
+			throw "between called on identical nations";
 		return nation1.num > nation2.num ? matrix[nation1][nation2] : matrix[nation2][nation1];
+	}
+
+	public function delta(nation1:Nation, nation2:Nation, dr:Float):Float
+	{
+		var n1:Nation;
+		var n2:Nation;
+		if (nation1.num > nation2.num)
+		{
+			n1 = nation1;
+			n2 = nation2;
+		}
+		else
+		{
+			n1 = nation2;
+			n2 = nation1;
+		}
+		matrix[n1][n2] = FlxMath.bound(matrix[n1][n2] + dr, -1, 1);
+		return matrix[n1][n2];
 	}
 
 	private function likeness(a:Float, b:Float):Float

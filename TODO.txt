@@ -1,0 +1,7 @@
+----------- Gadget Visibility for handling custom show() and hide() methods, including hierarchical adding/removing of subgadgets
+Allow custom overriding of resizing for panels; specific Transform gadget? resize = transform.to and transform = transform.by
+Allow multi to be resized after new panels have been added; make sure buttons do not resize
+----------- (Done halfway with addSprite helper) Figure out more universal notion for anchor-sprite interaction; failing that, allow multiple parents per anchor
+Create Sprite subclass of FlxSprite that has built-in visibility, transform, anchor, etc. components.
+----------- Better force-directed graph drawing algorithm
+Method for (multi)panel add() functionality to automatically include visibility linking

@@ -19,12 +19,15 @@ import system.Reg;
 
 class NationInfo
 {
-	var bars:Array<FlxBar>;
-	var anchor:Anchor;
+	public var anchor:Anchor;
+	public var visibility:Visibility;
+
+	private var bars:Array<FlxBar>;
 
 	public function new(x:Float, y:Float, size:Float, group:FlxGroup)
 	{
 		anchor = new Anchor(x + size / 2, y + size / 2);
+		visibility = new Visibility();
 		var barsWidth = size;
 		var barsHeight = 0.8 * size;
 
@@ -44,6 +47,7 @@ class NationInfo
 			var barAnchor = new Anchor(midpoint.x, midpoint.y);
 			barAnchor.attachParent(bar);
 			bars.push(bar);
+			visibility.addSprite(bar);
 			group.add(bar);
 
 			var text = new FlxText();
@@ -54,6 +58,7 @@ class NationInfo
 			text.size = 20;
 			text.text = ["Gay", "Furry", "Hacker"][j];
 			textAnchor.attachParent(text);
+			visibility.addSprite(text);
 			group.add(text);
 
 			anchor.add(textAnchor);
@@ -64,11 +69,6 @@ class NationInfo
 		}
 	}
 
-	public function hide()
-	{
-		anchor.propagate(sprite -> sprite.visible = false);
-	}
-
 	public function load(circle1:Null<NationCircle>)
 	{
 		var loc = circle1.nation.loc;
@@ -77,10 +77,5 @@ class NationInfo
 			bars[i].value = loc[i];
 			bars[i].updateBar();
 		}
-	}
-
-	public function show()
-	{
-		anchor.propagate(sprite -> sprite.visible = true);
 	}
 }
