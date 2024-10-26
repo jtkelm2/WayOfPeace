@@ -105,6 +105,7 @@ function scaleTo(sprite:FlxSprite, width:Float, height:Float):FlxSprite
 		trace(sprite, width, height);
 		throw "Goodbye";
 	}
+	rect.put();
 	return sprite;
 }
 
@@ -211,6 +212,9 @@ function getRect(alignment:ALIGNMENT, rect:FlxRect, margin:Float):FlxRect
 			returnRect.y = rect.height - margin;
 			returnRect.height = margin;
 	}
+
+	returnRect.x += rect.x;
+	returnRect.y += rect.y;
 
 	return returnRect;
 }

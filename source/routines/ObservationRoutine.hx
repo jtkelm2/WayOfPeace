@@ -2,7 +2,9 @@ package routines;
 
 import flixel.FlxG;
 import flixel.group.FlxGroup;
+import flixel.math.FlxRect;
 import flixel.util.FlxColor;
+import gadgets.Transform;
 import gameobjects.*;
 import routines.Routine;
 import system.*;
@@ -17,6 +19,8 @@ class ObservationRoutine extends Routine
 
 	private var HUD:HUD;
 	private var panel:Panel;
+
+	public var test:TransformTest;
 
 	public function new()
 	{
@@ -44,6 +48,9 @@ class ObservationRoutine extends Routine
 		// var panels = panel.splitVertical();
 		// panels[0].window.load()
 		// panel.addTo(group);
+
+		test = new TransformTest(new FlxRect(100, 200, 400, 500));
+		test.makeKids(4);
 	}
 
 	public function handler(input:InputID)
@@ -79,9 +86,16 @@ class ObservationRoutine extends Routine
 			case KeyReleased(SHIFT):
 				graphic.setMode(SELECT);
 			case KeyPressed(C):
-				// graphic.diagram.constrain();
-			case KeyPressed(R):
-				// graphic.diagram.refocus();
+				// test.transform.to(new FlxRect(test.transform.rect.x, test.transform.rect.y, test.transform.rect.width * 0.9, test.transform.rect.height * 1.1));
+				test.transform.by(0.9, 1.1, 10, 100);
+			case KeyPressed(T):
+				// test.transform.to(new FlxRect(test.transform.rect.x, test.transform.rect.y, test.transform.rect.width / 0.9, test.transform.rect.height / 1.1));
+				test.transform.by(1 / 0.9, 1 / 1.1, -10, -100);
+			case KeyPressed(H):
+				test.transform.to(new FlxRect(test.transform.rect.x - 40, test.transform.rect.y - 10, test.transform.rect.width, test.transform.rect.height));
+			case KeyPressed(N):
+				test.transform.to(new FlxRect(test.transform.rect.x + 40, test.transform.rect.y + 10, test.transform.rect.width, test.transform.rect.height));
+
 			case MiddleClick:
 				graphic.diagram.randomize();
 			case RightClick:
