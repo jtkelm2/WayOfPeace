@@ -49,8 +49,8 @@ class ObservationRoutine extends Routine
 		// panels[0].window.load()
 		// panel.addTo(group);
 
-		test = new TransformTest(new FlxRect(100, 200, 400, 500));
-		test.makeKids(4);
+		// test = new TransformTest(new FlxRect(100, 200, 400, 500));
+		// test.makeKids(4);
 	}
 
 	public function handler(input:InputID)

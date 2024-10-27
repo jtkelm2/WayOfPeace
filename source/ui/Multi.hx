@@ -190,7 +190,7 @@ class Multi
 
 		addTab(panels.length - 1);
 
-		this.panel.window.anchor.add(panel.window.anchor);
+		// this.panel.window.anchor.add(panel.window.anchor);
 		return this;
 	}
 
@@ -226,7 +226,7 @@ class Multi
 		panel.top.visibility.add(tab.visibility);
 		tab.anchor.x = panel.x() + panel.width() - (tab.num + 0.5) * tabWidth;
 		tab.anchor.y = panel.y() + tabHeight / 2;
-		panel.window.anchor.add(tab.anchor);
+		// panel.window.anchor.add(tab.anchor);
 	}
 
 	public function setTabwidthHeight(tabWidth:Float, tabHeight:Float)

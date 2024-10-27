@@ -19,11 +19,12 @@ class Panel
 {
 	// public var anchor:Anchor;
 	// public var rect:FlxRect;
-	// public var conspaceRect:FlxRect;
+	// public var contentRect:FlxRect;
 	public var alignment(default, set):ALIGNMENT;
 	public var window:SliceWindow;
 	public var margins:Margins;
 	public var visibility:Visibility;
+	public var transform:Transform;
 
 	public var left:Panel;
 	public var right:Panel;
@@ -36,6 +37,8 @@ class Panel
 
 	private var buffer:Buffer;
 
+	public var contentTransform:Transform;
+
 	public function new()
 	{
 		window = new SliceWindow();
@@ -45,80 +48,57 @@ class Panel
 		margins = new Margins();
 		visibility = new Visibility();
 		visibility.add(window.visibility);
+		transform = new Transform().setTo(to);
+		transform.add(window.transform, new FlxRect(0, 0, 1, 1));
+		contentTransform = new Transform();
 
 		subpanels = [];
 	}
 
-	// x(), y(), width(), and height() all refer to the conspaceRect() values, not the window values!
-	public function x():Float
-	{
-		return window.x() + margins.left;
-	}
-
-	public function y():Float
-	{
-		return window.y() + margins.top;
-	}
-
-	public function width():Float
-	{
-		return window.width - margins.left - margins.right;
-	}
-
-	public function height():Float
-	{
-		return window.height - margins.top - margins.bottom;
-	}
-
-	// FlxRect corresponding to the content space, i.e. window.rect() minus (this panel's) margins
-	public function conspaceRect():FlxRect
-	{
-		var rect = new FlxRect();
-		rect.x = x();
-		rect.y = y();
-		rect.width = width();
-		rect.height = height();
-		return rect;
-	}
+	// // contentTransform.x, contentTransform.y, contentTransform.width, and contentTransform.height all refer to the contentRect() values, not the window values!
+	// public function contentTransform.x:Float
+	// {
+	// 	return window.transform.x + margins.left;
+	// }
+	// public function contentTransform.y:Float
+	// {
+	// 	return window.transform.y + margins.top;
+	// }
+	// public function contentTransform.width:Float
+	// {
+	// 	return window.transform.width - margins.left - margins.right;
+	// }
+	// public function contentTransform.height:Float
+	// {
+	// 	return window.transform.height - margins.top - margins.bottom;
+	// }
+	// // FlxRect corresponding to the content space, i.e. window.rect() minus (this panel's) margins
+	// public function contentRect():FlxRect
+	// {
+	// 	var rect = new FlxRect();
+	// 	rect.x = contentTransform.x;
+	// 	rect.y = contentTransform.y;
+	// 	rect.width = contentTransform.width;
+	// 	rect.height = contentTransform.height;
+	// 	return rect;
+	// }
 
 	public function addTo(group:FlxGroup)
 	{
-		window.anchor.propagate(sprite -> group.add(sprite));
+		// ???
 		return this;
 	}
 
-	public function resize(x:Float, y:Float, width:Float, height:Float)
+	public function to(rect:FlxRect)
 	{
-		// Affine class for transformations?
-		if (height <= margins.top + margins.bottom || width <= margins.left + margins.right)
-		{
-			visibility.hide();
-			trace("Resizing made panel invisible");
-			trace(x, y, width, height);
-			trace(this);
-			return this;
-		}
-		var scaleX = width / window.width;
-		var scaleY = height / window.height;
-		var offsetX = (x - window.x()) + 0.5 * (width - window.width);
-		var offsetY = (y - window.y()) + 0.5 * (height - window.height);
-
-		transform(scaleX, scaleY, offsetX, offsetY);
-		return this;
-	}
-
-	public function transform(scaleX:Float = 1, scaleY:Float = 1, offsetX:Float = 0, offsetY:Float = 0)
-	{
-		window.transform(scaleX, scaleY, offsetX, offsetY);
-
-		var childrenScaleX = (window.width - margins.left - margins.right) / width();
-		var childrenScaleY = (window.height - margins.top - margins.bottom) / height();
-		for (panel in subpanels)
-		{
-			panel.transform(childrenScaleX, childrenScaleY);
-		}
-
-		return this;
+		contentTransform.to(new FlxRect(rect.x
+			+ margins.left, rect.y
+			+ margins.top, rect.width
+			- margins.left
+			- margins.right,
+			rect.height
+			- margins.top
+			- margins.bottom));
 	}
 
 	// public function show()
@@ -141,16 +121,18 @@ class Panel
 	public function splitVertical(columns:Int = 2, separationWidth:Float = null)
 	{
 		var gap:Float = separationWidth == null ? margins.left : separationWidth;
-		var subwidth:Float = (width() - gap * (columns - 1)) / columns;
+		var subwidth:Float = (contentTransform.width - gap * (columns - 1)) / columns;
 
 		H = [];
 
 		for (column in 0...columns)
 		{
-			var subpanel = new Panel().resize(x() + (subwidth + gap) * column, y(), subwidth, height());
-			window.anchor.add(subpanel.window.anchor);
+			var subpanel = new Panel();
+			subpanel.transform.to(new FlxRect(contentTransform.x + (subwidth + gap) * column, contentTransform.y, subwidth, contentTransform.height));
+			// window.anchor.add(subpanel.window.anchor);
 			subpanels.push(subpanel);
 			visibility.add(subpanel.visibility);
+			contentTransform.add(subpanel.transform);
 			H.push(subpanel);
 		}
 
@@ -164,16 +146,18 @@ class Panel
 	public function splitHorizontal(rows:Int = 2, separationHeight:Float = null)
 	{
 		var gap:Float = separationHeight == null ? margins.top : separationHeight;
-		var subheight:Float = (height() - gap * (rows - 1)) / rows;
+		var subheight:Float = (contentTransform.height - gap * (rows - 1)) / rows;
 
 		V = [];
 
 		for (row in 0...rows)
 		{
-			var subpanel = new Panel().resize(x(), y() + (subheight + gap) * row, width(), subheight);
-			window.anchor.add(subpanel.window.anchor);
+			var subpanel = new Panel();
+			subpanel.transform.to(new FlxRect(contentTransform.x, contentTransform.y + (subheight + gap) * row, contentTransform.width, subheight));
+			// window.anchor.add(subpanel.window.anchor);
 			subpanels.push(subpanel);
 			visibility.add(subpanel.visibility);
+			contentTransform.add(subpanel.transform);
 			V.push(subpanel);
 		}
 
@@ -187,44 +171,52 @@ class Panel
 	public function splitHorizontal2(topBias:Float = 0.5, separationHeight:Float = null)
 	{
 		var gap:Float = separationHeight == null ? margins.top : separationHeight;
-		var totalHeight:Float = height() - gap;
+		var totalHeight:Float = contentTransform.height - gap;
 		var topHeight = topBias * totalHeight;
 		var bottomHeight = (1 - topBias) * totalHeight;
 
 		V = [];
 
-		top = new Panel().resize(x(), y(), width(), topHeight);
-		window.anchor.add(top.window.anchor);
+		top = new Panel();
+		top.transform.to(new FlxRect(contentTransform.x, contentTransform.y, contentTransform.width, topHeight));
+		// window.anchor.add(top.window.anchor);
 		subpanels.push(top);
 		visibility.add(top.visibility);
+		contentTransform.add(top.transform);
 		V.push(top);
 
-		bottom = new Panel().resize(x(), y() + topHeight + gap, width(), bottomHeight);
-		window.anchor.add(bottom.window.anchor);
+		bottom = new Panel();
+		bottom.transform.to(new FlxRect(contentTransform.x, contentTransform.y + topHeight + gap, contentTransform.width, bottomHeight));
+		// window.anchor.add(bottom.window.anchor);
 		subpanels.push(bottom);
 		visibility.add(bottom.visibility);
+		contentTransform.add(bottom.transform);
 		V.push(bottom);
 	}
 
 	public function splitVertical2(leftBias:Float = 0.5, separationWidth:Float = null)
 	{
 		var gap:Float = separationWidth == null ? margins.left : separationWidth;
-		var totalWidth:Float = width() - gap;
+		var totalWidth:Float = contentTransform.width - gap;
 		var leftWidth = leftBias * totalWidth;
 		var rightWidth = (1 - leftBias) * totalWidth;
 
 		H = [];
 
-		left = new Panel().resize(x(), y(), leftWidth, height());
-		window.anchor.add(left.window.anchor);
+		left = new Panel();
+		left.transform.to(new FlxRect(contentTransform.x, contentTransform.y, leftWidth, contentTransform.height));
+		// window.anchor.add(left.window.anchor);
 		subpanels.push(left);
 		visibility.add(left.visibility);
+		contentTransform.add(left.transform);
 		H.push(left);
 
-		right = new Panel().resize(x() + leftWidth + gap, y(), rightWidth, height());
-		window.anchor.add(right.window.anchor);
+		right = new Panel();
+		right.transform.to(new FlxRect(contentTransform.x + leftWidth + gap, contentTransform.y, rightWidth, contentTransform.height));
+		// window.anchor.add(right.window.anchor);
 		subpanels.push(right);
 		visibility.add(right.visibility);
+		contentTransform.add(right.transform);
 		H.push(right);
 	}
 
@@ -319,9 +311,9 @@ class Buffer
 	{
 		anchor.setAlignment(alignment);
 
-		panel.window.anchor.add(anchor);
+		// panel.window.anchor.add(anchor);
 
-		var pos = Anchor.getAlignmentPoint(alignment, panel.conspaceRect());
+		var pos = Anchor.getAlignmentPoint(alignment, panel.contentTransform.rect);
 		anchor.x = pos.x;
 		anchor.y = pos.y;
 		pos.put();

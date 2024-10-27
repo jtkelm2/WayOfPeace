@@ -24,9 +24,10 @@ enum WINDOW_TYPE
 
 class SliceWindowFragment extends FlxSprite
 {
-	public var anchor:Anchor;
+	// public var anchor:Anchor;
 	public var alignment:ALIGNMENT;
 	public var visibility:Visibility;
+	public var transform:Transform;
 
 	private var window:SliceWindow;
 
@@ -37,18 +38,13 @@ class SliceWindowFragment extends FlxSprite
 		this.alignment = alignment;
 
 		visibility = new Visibility(this);
-		visibility.hide(); // Necessary so refreshPositionScale() doesn't try to scale this
-
-		anchor = new Anchor().attachParent(this);
-		window.anchor.add(anchor);
+		transform = new Transform();
 
 		refreshPositionScale();
 	}
 
 	public function loadGraphicFragment(sprite:FlxSprite, graphicMargin:Int)
 	{
-		visibility.show();
-
 		var graphicRect = Useful.getRect(alignment, sprite.getRotatedBounds(), graphicMargin);
 
 		makeGraphic(Std.int(graphicRect.width), Std.int(graphicRect.height), FlxColor.TRANSPARENT, true);
@@ -56,53 +52,31 @@ class SliceWindowFragment extends FlxSprite
 
 		graphicRect.put();
 
-		anchor.center(this);
+		transform.fromSprite(this);
 		refreshPositionScale();
 	}
 
 	public function refreshPositionScale()
 	{
 		var rect = new FlxRect();
-		rect.x = window.x() + 0.5 * window.margin;
-		rect.y = window.y() + 0.5 * window.margin;
-		rect.width = window.width - window.margin;
-		rect.height = window.height - window.margin;
+		rect.x = window.transform.x + 0.5 * window.margin;
+		rect.y = window.transform.y + 0.5 * window.margin;
+		rect.width = window.transform.width - window.margin;
+		rect.height = window.transform.height - window.margin;
 
-		var pos = Anchor.getAlignmentPoint(alignment, rect);
-		anchor.x = pos.x;
-		anchor.y = pos.y;
+		var trueRect = Useful.getRect(alignment, window.transform.rect, window.margin);
+		transform.to(trueRect);
 
-		if (visible)
-		{
-			var trueRect = Useful.getRect(alignment, window.rect(), window.margin);
-			// trace(alignment);
-			// trace(getScreenBounds(), anchor.x, anchor.y);
-			Useful.scaleTo(this, trueRect.width, trueRect.height);
-			// trace(getScreenBounds(), trueRect);
-			trueRect.put();
-			// trace(pos);
-			// trace(rect);
-		}
-
-		pos.put();
+		trueRect.put();
 		rect.put();
-	}
-
-	override public function destroy()
-	{
-		window.anchor.remove(anchor);
-		anchor.destroy();
-		super.destroy();
 	}
 }
 
 class SliceWindow
 {
-	public var width:Float;
-	public var height:Float;
 	public var margin:Float;
 	public var visibility:Visibility;
-	public var anchor:Anchor; // Only to be used for rotations
+	public var transform:Transform;
 
 	private var fragments:Array<SliceWindowFragment>;
 
@@ -110,33 +84,11 @@ class SliceWindow
 
 	public function new(x:Float = 0, y:Float = 0, width:Float = 200, height:Float = 100, margin:Float = 16)
 	{
-		this.width = width;
-		this.height = height;
 		this.margin = margin;
-		anchor = new Anchor(x + width / 2, y + height / 2);
 		visibility = new Visibility();
+		transform = new Transform(new FlxRect(x, y, width, height)).setTo(to);
 		initFragments();
 		alpha = 1;
-	}
-
-	public function x():Float
-	{
-		return anchor.x - 0.5 * width;
-	}
-
-	public function y():Float
-	{
-		return anchor.y - 0.5 * height;
-	}
-
-	public function rect():FlxRect
-	{
-		var rect = new FlxRect();
-		rect.x = x();
-		rect.y = y();
-		rect.width = width;
-		rect.height = height;
-		return rect;
 	}
 
 	public function addTo(group:FlxGroup)
@@ -153,57 +105,14 @@ class SliceWindow
 		return this;
 	}
 
-	public function transform(scaleX:Float = 1, scaleY:Float = 1, offsetX:Float = 0, offsetY:Float = 0)
+	public function to(rect:FlxRect)
 	{
-		width *= scaleX;
-		height *= scaleY;
-		anchor.x += offsetX;
-		anchor.y += offsetY;
-
-		if (width <= 2 * margin || height <= 2 * margin)
-		{
-			visibility.hide();
-			trace("Resizing made SliceWindow invisible");
-			trace(width, height, margin);
-			return this;
-		}
-
+		transform.rect = rect;
 		for (fragment in fragments)
 		{
 			fragment.refreshPositionScale();
 		}
-
-		return this;
 	}
-
-	public function resize(x:Float, y:Float, width:Float, height:Float, ?margin:Float):SliceWindow
-	{
-		this.margin = margin == null ? this.margin : margin;
-		var scaleX = width / this.width;
-		var scaleY = height / this.height;
-		var offsetX = (x - this.x()) + 0.5 * (width - this.width);
-		var offsetY = (y - this.y()) + 0.5 * (height - this.height);
-
-		transform(scaleX, scaleY, offsetX, offsetY);
-		return this;
-	}
-
-	// public function show()
-	// {
-	// 	visibility.show();
-	// 	// for (fragment in fragments)
-	// 	// {
-	// 	// 	fragment.visible = true;
-	// 	// }
-	// }
-	// public function hide()
-	// {
-	// 	visibility.hide();
-	// 	// for (fragment in fragments)
-	// 	// {
-	// 	// 	fragment.visible = false;
-	// 	// }
-	// }
 
 	public function destroy()
 	{
@@ -211,14 +120,12 @@ class SliceWindow
 		{
 			fragment.destroy();
 		}
-
-		anchor.destroy();
 	}
 
 	public function setMargin(margin:Float)
 	{
 		this.margin = margin;
-		resize(x(), y(), width, height, margin);
+		transform.to(transform.rect);
 		return margin;
 	}
 

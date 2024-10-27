@@ -15,21 +15,25 @@ class Transform
 
 	private var toCallback:FlxRect->Void;
 
+	public var x(get, set):Float;
+	public var y(get, set):Float;
+	public var width(get, set):Float;
+	public var height(get, set):Float;
+
 	public function new(?rect:FlxRect)
 	{
 		this.rect = rect == null ? new FlxRect() : rect;
 		children = [];
+		toCallback = (_) -> {};
 	}
 
 	public function to(newRect:FlxRect)
 	{
-		if (toCallback == null)
-			throw "toCallback uninitialized";
 		toCallback(newRect);
 
-		for (child in children.keyValueIterator())
+		for (child in children.keys())
 		{
-			child.key.to(analogousRectUnit(child.value, newRect));
+			child.to(analogousRectUnit(children[child], newRect));
 		}
 
 		rect = newRect;
@@ -50,6 +54,7 @@ class Transform
 	public function setTo(toCallback:FlxRect->Void)
 	{
 		this.toCallback = toCallback;
+		return this;
 	}
 
 	public function fromSprite(sprite:FlxSprite)
@@ -102,6 +107,50 @@ class Transform
 	private function getUnitSubRect(childRect:FlxRect):FlxRect
 	{
 		return analogousRect(rect, childRect, unitRect);
+	}
+
+	function set_x(x:Float):Float
+	{
+		to(new FlxRect(x, rect.y, rect.width, rect.height));
+		return x;
+	}
+
+	function get_x():Float
+	{
+		return rect.x;
+	}
+
+	function set_y(y:Float):Float
+	{
+		to(new FlxRect(rect.x, y, rect.width, rect.height));
+		return y;
+	}
+
+	function get_y():Float
+	{
+		return rect.y;
+	}
+
+	function set_width(width:Float):Float
+	{
+		to(new FlxRect(rect.x, rect.y, width, rect.height));
+		return width;
+	}
+
+	function get_width():Float
+	{
+		return rect.width;
+	}
+
+	function set_height(height:Float):Float
+	{
+		to(new FlxRect(rect.x, rect.y, rect.width, height));
+		return height;
+	}
+
+	function get_height():Float
+	{
+		return rect.height;
 	}
 }
 

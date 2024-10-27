@@ -1,6 +1,7 @@
 package ui;
 
 import flixel.FlxG;
+import flixel.math.FlxRect;
 import flixel.text.FlxText;
 import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween.FlxTweenManager;
@@ -37,7 +38,7 @@ class HUD
 	{
 		var window = new SliceWindow();
 		window.setType(type);
-		window.resize(x, y, width, height);
+		window.transform.to(new FlxRect(x, y, width, height));
 
 		window.addTo(Reg.windowGroup);
 
